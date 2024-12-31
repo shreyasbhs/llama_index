@@ -249,6 +249,7 @@ class SlackReader(BasePydanticReader):
 
         try:
             result = self._client.conversations_list(types=types)
+
             return result["channels"]
         except SlackApiError as e:
             logger.error(f"Error fetching channels: {e.response['error']}")
