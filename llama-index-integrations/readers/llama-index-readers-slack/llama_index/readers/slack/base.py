@@ -243,13 +243,13 @@ class SlackReader(BasePydanticReader):
         except re.error:
             return False
 
-    def _list_channels(self) -> List[Dict[str, Any]]:
-        """List all channels (public and private)."""
+    def _list_channels(self, types:str) -> List[Dict[str, Any]]:
+        """List all channels based on the list of channel types."""
         from slack_sdk.errors import SlackApiError
 
         try:
             result = self._client.conversations_list(
-                types="public_channel,private_channel"
+                types=types
             )
             return result["channels"]
         except SlackApiError as e:
@@ -275,7 +275,7 @@ class SlackReader(BasePydanticReader):
                     filtered_channels.append(channel)
         return filtered_channels
 
-    def get_channel_ids(self, channel_patterns: List[str]) -> List[str]:
+    def get_channel_ids(self, channel_patterns: List[str], types:str = "public,private") -> List[str]:
         """Get list of channel IDs based on names and regex patterns.
 
         Args:
@@ -287,7 +287,7 @@ class SlackReader(BasePydanticReader):
         if not channel_patterns:
             raise ValueError("No channel patterns provided.")
 
-        channels = self._list_channels()
+        channels = self._list_channels(type)
         logger.info(f"Total channels fetched: {len(channels)}")
 
         if not channels:
